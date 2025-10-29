@@ -1,33 +1,33 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { NextRequest, NextResponse } from "next/server";
 
-const protectedRoute = ["/profile"]
-
-// Middleware is to protect routes 
+const protectedRoute = ["/profile", "/admin/dashboard"];
+// Middleware is to protect routes
 
 // In Nextjs 16 Middleware is replaced with proxy
 
-export async function middleware(req: NextRequest){
-    const {nextUrl} = req 
-    const sessionCookie = getSessionCookie(req)
+export async function middleware(req: NextRequest) {
+  const { nextUrl } = req;
+  const sessionCookie = getSessionCookie(req);
+  
 
-    const res = NextResponse.next()
-    
-    const isLoggedIn = !!sessionCookie
-    const isOnProtectedRoute = protectedRoute.includes(nextUrl.pathname)
-    const isOnAuthRoute = nextUrl.pathname.startsWith("/auth")
+  const res = NextResponse.next();
 
-    if(isOnProtectedRoute && !isLoggedIn){
-        return NextResponse.redirect(new URL("/auth/login", req.url))
-    }
+  const isLoggedIn = typeof sessionCookie == "string";
+  const isOnProtectedRoute = protectedRoute.includes(nextUrl.pathname);
+  const isOnAuthRoute = nextUrl.pathname.startsWith("/auth");
 
-    if(isOnAuthRoute && isLoggedIn){
-        return NextResponse.redirect(new URL("/profile", req.url))
-    }
+  if (isOnProtectedRoute && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
 
-    return res
+  if (isOnAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL("/profile", req.url));
+  }
+
+  return res;
 }
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)']
-}
+  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+};

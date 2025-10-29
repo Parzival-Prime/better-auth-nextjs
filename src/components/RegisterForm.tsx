@@ -21,8 +21,10 @@ function RegisterForm() {
 
     //========= Client Side Auth =======//   ( Recommended )
 
-    const name = String(formData.get("name"));
-    if (!name) return toast.error("Please enter your name");
+    const name = String(formData.get("name")) || "";
+
+    const username = String(formData.get("username"));
+    if (!username) return toast.error("Please enter your username");
 
     const email = String(formData.get("email"));
     if (!email) return toast.error("Please enter your email");
@@ -30,7 +32,7 @@ function RegisterForm() {
     const password = String(formData.get("password"));
     if (!password) return toast.error("Please enter your password");
 
-    await signUp.email({name, email, password},
+    await signUp.email({name: name, username: username, email: email, password: password},
       {
         onRequest: ()=>{setIsPending(true)},
         onResponse: ()=>{setIsPending(false)},
@@ -65,6 +67,9 @@ function RegisterForm() {
       <div className="space-y-2">
         <Label htmlFor="name">Name:</Label>
         <Input type="text" id="name" name="name" />
+
+        <Label htmlFor="username">Username:</Label>
+        <Input type="text" id="username" name="username" />
 
         <Label htmlFor="email">Email:</Label>
         <Input type="email" id="email" name="email" />

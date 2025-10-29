@@ -22,6 +22,18 @@ export const auth = betterAuth({
     },
   },
 
+  user: {
+    additionalFields: {
+      role: {
+        type: ["USER", "ADMIN"],
+        input: false
+      },
+      username: {
+        type: "string"
+      }
+    }
+  },
+
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
       if (ctx.path === "/sign-up/email") {
