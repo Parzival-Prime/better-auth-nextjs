@@ -11,14 +11,13 @@ import { signInEmailAction } from "@/actions/sign-in-email.action";
 
 function LoginForm() {
   const router = useRouter();
-  const [isPending, setIsPending] = useState(false)
+  const [isPending, setIsPending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsPending(true)
+    setIsPending(true);
     const formData = new FormData(e.target as HTMLFormElement);
 
-    
     //============ Client Side Auth ============//   ( Recommended )
 
     const email = String(formData.get("email"));
@@ -28,25 +27,28 @@ function LoginForm() {
     if (!password) return toast.error("Please enter your password");
 
     await signIn.email(
-        { email, password },
-        {
-            onRequest: () => {setIsPending(true)},
-            onResponse: () => {setIsPending(false)},
-            onError: (ctx) => {
-                toast.error(ctx.error.message);
-              },
-              onSuccess: () => {
-                  router.push("/profile");
-                  toast.success("Logged In Successful.  \n Good to have you back 😊");
-                },
+      { email, password },
+      {
+        onRequest: () => {
+          setIsPending(true);
+        },
+        onResponse: () => {
+          setIsPending(false);
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+        },
+        onSuccess: () => {
+          router.push("/profile");
+          toast.success("Logged In Successful.  \n Good to have you back 😊");
+        },
       }
     );
 
-
     //=========== Server Side Auth =========//
-  
+
     // const {error} = await signInEmailAction(formData)
-  
+
     // if(error){
     //   toast.error(error)
     //   setIsPending(false)
@@ -55,7 +57,7 @@ function LoginForm() {
     //   toast.success("Logged In Successful.  \n Good to have you back 😊");
     // }
   }
-  
+
   return (
     <form onSubmit={handleSubmit} className="max-w-sm w-full sapce-y-4">
       <div className="space-y-2">

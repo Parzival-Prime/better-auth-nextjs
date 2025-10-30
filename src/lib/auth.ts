@@ -5,6 +5,9 @@ import { hashPassword, verifyPassword } from "@/lib/argon2";
 import { nextCookies } from "better-auth/next-js";
 import { createAuthMiddleware, APIError } from "better-auth/api";
 import { getValidDomains, normalizeName } from "@/lib/utils";
+import { UserRole } from "@/generated/prisma/enums";
+import { admin } from "better-auth/plugins";
+import {ac, roles} from "@/lib/permissions"
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -22,16 +25,23 @@ export const auth = betterAuth({
     },
   },
 
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+    }
+  },
+
   user: {
     additionalFields: {
       role: {
-        type: ["USER", "ADMIN"],
-        input: false
+        type: ["USER", "ADMIN"] as Array<UserRole>,
+        input: false,
       },
       username: {
-        type: "string"
-      }
-    }
+        type: "string",
+      },
+    },
   },
 
   hooks: {
@@ -59,6 +69,22 @@ export const auth = betterAuth({
     }),
   },
 
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const adminEmails = process.env.ADMIN_EMAILS?.split(";") ?? [];
+
+          if (adminEmails.includes(user.email)) {
+            return { data: { ...user, role: UserRole.ADMIN } };
+          }
+
+          return { data: user };
+        },
+      },
+    },
+  },
+
   session: {
     expiresIn: 30 * 24 * 60 * 60,
   },
@@ -69,5 +95,13 @@ export const auth = betterAuth({
     },
   },
 
-  //  plugins: [nextCookies()]
+   plugins: [
+    // nextCookies(),
+    admin({
+      defaultRole: UserRole.USER,
+      adminRoles: [UserRole.ADMIN],
+      ac,
+      roles
+    })
+   ]
 });

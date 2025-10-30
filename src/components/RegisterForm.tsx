@@ -23,8 +23,7 @@ function RegisterForm() {
 
     const name = String(formData.get("name")) || "";
 
-    const username = String(formData.get("username"));
-    if (!username) return toast.error("Please enter your username");
+    const username = String(formData.get("username"))|| "";
 
     const email = String(formData.get("email"));
     if (!email) return toast.error("Please enter your email");
