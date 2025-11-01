@@ -8,6 +8,7 @@ import { getValidDomains, normalizeName } from "@/lib/utils";
 import { UserRole } from "@/generated/prisma/enums";
 import { admin } from "better-auth/plugins";
 import {ac, roles} from "@/lib/permissions"
+import sendEmail from "@/lib/resend"
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -18,11 +19,28 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 6, // to change minimum password length requirement
     maxPasswordLength: 30, // to change maximum password length requirement
-    autoSignIn: true, // by default on successful signUp it automatically signIn s
+    autoSignIn: false, // by default on successful signUp it automatically signIn 
+    autoSignUp: false,
     password: {
       hash: hashPassword,
       verify: verifyPassword,
     },
+    requireEmailVerification: true
+  },
+
+  emailVerification: {
+    sendOnSignUp: true,
+    expiresIn: 60 * 5,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async({user, url})=>{
+      console.log("sending verification mail to: ", user.email)
+      await sendEmail({
+        email: user.email,
+        subject: "Verify your email address",
+        message: "Please verify you email to complete your verification.",
+        url: String(url)
+      })
+    }
   },
 
   socialProviders: {
@@ -96,7 +114,7 @@ export const auth = betterAuth({
   account: {
     accountLinking: {
       enabled: false
-    }
+    },
   },
 
   advanced: {

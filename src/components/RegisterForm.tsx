@@ -40,7 +40,7 @@ function RegisterForm() {
         },
         onSuccess: ()=>{
           router.push("/profile")
-          toast.success("Registration Successful. You're all set 👍")
+          toast.success("Registration Successful. Sent you the Verification Email")
         }
       }
     )
